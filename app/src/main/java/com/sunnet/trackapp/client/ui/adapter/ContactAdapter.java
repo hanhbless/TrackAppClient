@@ -50,7 +50,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
 
         public void setUi(final ContactEntity entity) {
             tvName.setText(entity.getName());
-            tvPhone.setText(entity.getPhone());
+            tvPhone.setText(entity.getPhone().replace(";", ""));
             if (onClickListener == null) {
                 onClickListener = new View.OnClickListener() {
                     @Override

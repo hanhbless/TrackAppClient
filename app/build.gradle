@@ -52,4 +52,7 @@ dependencies {
     compile 'org.bouncycastle:bcprov-jdk15on:1.53'
     compile 'com.android.support:multidex:1.0.0'
 
+    //-- Animation
+    compile files('libs/easyandroidanimationslibrary-v0.5.jar')
+
 }

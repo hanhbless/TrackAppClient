@@ -9,11 +9,13 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.easyandroidanimations.library.FlipVerticalToAnimation;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -62,6 +64,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     private PolygonOptions polygonOptions;
     private LocationAdapter adapter;
     private boolean isFirst = true;
+    private boolean isAnim = false;
 
     @Override
     protected int getContentView() {
@@ -89,6 +92,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             @Override
             public void onClick(View v) {
                 isShowMap = !isShowMap;
+                isAnim = true;
                 switchMapOrDetail();
             }
         });
@@ -227,16 +231,28 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     }
 
     private void switchMapOrDetail() {
+        if (isAnim) {
+            if (isShowMap) {
+                new FlipVerticalToAnimation(swipeRefreshLayout).setFlipToView(containerMap)
+                        .setInterpolator(new LinearInterpolator()).animate();
+            } else {
+                new FlipVerticalToAnimation(containerMap).setFlipToView(swipeRefreshLayout)
+                        .setInterpolator(new LinearInterpolator()).animate();
+            }
+        }
         if (locationList.size() == 0 && !isShowMap) {
             tvDataNotFound.setVisibility(View.VISIBLE);
         } else {
             tvDataNotFound.setVisibility(View.GONE);
         }
-        swipeRefreshLayout.setVisibility(isShowMap ? View.GONE : View.VISIBLE);
-        containerMap.setVisibility(!isShowMap ? View.GONE : View.VISIBLE);
+        if (!isAnim) {
+            swipeRefreshLayout.setVisibility(isShowMap ? View.GONE : View.VISIBLE);
+            containerMap.setVisibility(!isShowMap ? View.GONE : View.VISIBLE);
+        }
         if (!isShowMap) {
             prepareDetailAdapter();
         }
+        isAnim = false;
     }
 
     private PolygonOptions getPolygonOptions(List<LocationEntity> locList) {
