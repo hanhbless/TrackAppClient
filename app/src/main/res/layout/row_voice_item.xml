@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ProgressWheel="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="7dip"
+        android:layout_marginTop="7dip">
+
+        <RelativeLayout
+            android:id="@+id/rel_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true">
+
+            <ImageView
+                android:id="@+id/icon_play"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_centerInParent="true"
+                android:scaleType="centerInside"
+                android:src="@mipmap/btn_play" />
+
+            <com.sunnet.trackapp.client.ui.customview.ProgressWheel
+                android:id="@+id/progress_wheel"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_centerInParent="true"
+                ProgressWheel:barColor="#339BB9"
+                ProgressWheel:barWidth="3dp"
+                ProgressWheel:rimColor="#44000000"
+                ProgressWheel:rimWidth="3dp"
+                ProgressWheel:spinSpeed="3dp"
+                ProgressWheel:text="0%"
+                ProgressWheel:textColor="#222222"
+                ProgressWheel:textSize="13dp" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/rel_play"
+            android:gravity="center"
+            android:paddingLeft="7dip"
+            android:paddingRight="7dip">
+
+            <TextView
+                android:id="@+id/tv1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:ellipsize="marquee"
+                android:gravity="center_vertical"
+                android:singleLine="true"
+                android:text="Name or Phone"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv1"
+                android:ellipsize="marquee"
+                android:singleLine="true"
+                android:text="03:21 min"
+                android:visibility="gone"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/colorPrimary" />
+
+            <TextView
+                android:id="@+id/tv3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv2"
+                android:singleLine="true"
+                android:text="Apr 30"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/colorPrimaryDark" />
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:layout_below="@+id/tv2"
+        android:layout_marginTop="7dip"
+        android:background="@color/colorPrimary" />
+
+</LinearLayout>
