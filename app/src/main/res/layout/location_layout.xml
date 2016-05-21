@@ -77,4 +77,26 @@
             android:src="@mipmap/icon_map" />
     </FrameLayout>
 
+    <FrameLayout
+        android:id="@+id/toggle_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="@dimen/padding_large">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="@dimen/padding_large"
+            android:src="@mipmap/icon_filter" />
+    </FrameLayout>
+
+    <View
+        android:id="@+id/dimView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorDim"/>
+
+
 </RelativeLayout>

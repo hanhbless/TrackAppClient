@@ -25,8 +25,10 @@ import java.io.OutputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SignatureException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Formatter;
 import java.util.List;
 import java.util.Locale;
@@ -346,7 +348,7 @@ public class Utils {
     /**
      * Format date string
      */
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, yyyy-MMM-dd");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, yyyy-MMM-dd HH:mm");
 
     public static String getDateFormat(long timeInMillisecond) {
         try {
@@ -357,6 +359,24 @@ public class Utils {
             e.printStackTrace();
         }
         return String.valueOf(timeInMillisecond);
+    }
+
+    public static long getLongTimeDate(String timeDate) {
+        try {
+            return dateFormat.parse(timeDate).getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public static Date getTimeDate(String timeDate) {
+        try {
+            return dateFormat.parse(timeDate);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 }

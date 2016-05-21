@@ -319,4 +319,8 @@ public class MainActivity extends AppCompatActivity {
         });
         request.execute();
     }
+
+    public int getHeightSmartTab() {
+        return smartTabLayout.getHeight();
+    }
 }

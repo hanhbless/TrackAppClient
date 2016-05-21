@@ -38,17 +38,19 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.Locati
 
     static class LocationHolder extends RecyclerView.ViewHolder {
         View itemView;
-        TextView tvHeader, tvAddress;
+        TextView tvTime, tvHeader, tvAddress;
         View.OnClickListener onClickListener;
 
         public LocationHolder(View itemView) {
             super(itemView);
             this.itemView = itemView;
+            tvTime = (TextView) itemView.findViewById(R.id.tv3);
             tvHeader = (TextView) itemView.findViewById(R.id.tv1);
             tvAddress = (TextView) itemView.findViewById(R.id.tv2);
         }
 
         public void setUi(final LocationEntity entity) {
+            tvTime.setText(entity.getDate());
             tvHeader.setText(entity.getPlace());
             tvAddress.setText(entity.getAddress());
             /*if (onClickListener == null) {

@@ -37,20 +37,27 @@ import com.sunnet.trackapp.client.ui.activity.MainActivity;
 import com.sunnet.trackapp.client.ui.adapter.IOnCLick;
 import com.sunnet.trackapp.client.ui.adapter.LocationAdapter;
 import com.sunnet.trackapp.client.ui.model.MarkerItem;
+import com.sunnet.trackapp.client.ui.popup.PopupFilterLocation;
 import com.sunnet.trackapp.client.util.GlobalSingleton;
+import com.sunnet.trackapp.client.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 public class LocationFragment extends BaseFragment implements OnMapReadyCallback,
         SwipeRefreshLayout.OnRefreshListener, ClusterManager.OnClusterItemClickListener<MarkerItem> {
-    private FrameLayout toggleMapOrDetail;
+    private FrameLayout toggleMapOrDetail, toggleFilter;
     private FrameLayout containerMap;
     private GoogleMap googleMap;
     private RecyclerView recyclerView;
     private SwipeRefreshLayout swipeRefreshLayout;
     private ProgressBar loading;
     private TextView tvDataNotFound;
+    private View dimView;
 
     /**
      * Resources
@@ -58,6 +65,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     private List<LocationEntity> locationList = new ArrayList<>();
     private List<LocationEntity> locationListTemp = new ArrayList<>();
     private boolean isShowMap = true;
+    private boolean isShowFilter = false;
     private MarkerItem markerItemClicked;
     private ClusterManager<MarkerItem> mClusterManager;
     private LatLngBounds.Builder boundsBuilder;
@@ -73,7 +81,10 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
 
     @Override
     protected void initView() {
+        dimView = findViewById(R.id.dimView);
+        dimView.setVisibility(View.GONE);
         toggleMapOrDetail = (FrameLayout) findViewById(R.id.toggle_map_detail);
+        toggleFilter = (FrameLayout) findViewById(R.id.toggle_filter);
         loading = (ProgressBar) findViewById(R.id.loading);
         tvDataNotFound = (TextView) findViewById(R.id.tv_no_data);
         tvDataNotFound.setVisibility(View.GONE);
@@ -94,6 +105,31 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 isShowMap = !isShowMap;
                 isAnim = true;
                 switchMapOrDetail();
+            }
+        });
+        toggleFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isShowFilter) {
+                    dimView.setVisibility(View.VISIBLE);
+                    isShowFilter = true;
+                    PopupFilterLocation popup = new PopupFilterLocation(getActivity(), new PopupFilterLocation.IPopup() {
+                        @Override
+                        public void onChange() {
+                            Toast.makeText(getActivity(), "Filter changed", Toast.LENGTH_SHORT).show();
+                            //-- Filter map and list
+                            initData();
+                        }
+
+                        @Override
+                        public void onDismiss() {
+                            isShowFilter = false;
+                            dimView.setVisibility(View.GONE);
+                        }
+                    }, toggleFilter);
+                    popup.setOffset(getMainActivity().getHeightSmartTab());
+                    popup.show();
+                }
             }
         });
     }
@@ -126,8 +162,8 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
     /**
      * Preparing map data
      */
-    private void prepareMapData() {
-        getPolygonOptions(locationListTemp);
+    private void prepareMapData(List<LocationEntity> list) {
+        getPolygonOptions(list);
     }
 
     /**
@@ -162,15 +198,69 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
         mClusterManager.cluster();
     }
 
+    private long lhsTime, rhsTime;
 
-    private void setUI() {
+    private void sort(List<LocationEntity> list) {
+        if (GlobalSingleton.getInstance().isFilterAscending()) {
+            Collections.sort(list, new Comparator<LocationEntity>() {
+                @Override
+                public int compare(LocationEntity lhs, LocationEntity rhs) {
+                    lhsTime = Utils.getLongTimeDate(lhs.getDate());
+                    rhsTime = Utils.getLongTimeDate(rhs.getDate());
+                    if (lhsTime > rhsTime)
+                        return 1;
+                    if (lhsTime < rhsTime)
+                        return -1;
+                    return 0;
+                }
+            });
+        } else {
+            Collections.sort(list, new Comparator<LocationEntity>() {
+                @Override
+                public int compare(LocationEntity lhs, LocationEntity rhs) {
+                    lhsTime = Utils.getLongTimeDate(lhs.getDate());
+                    rhsTime = Utils.getLongTimeDate(rhs.getDate());
+                    if (lhsTime > rhsTime)
+                        return -1;
+                    if (lhsTime < rhsTime)
+                        return 1;
+                    return 0;
+                }
+            });
+        }
+    }
+
+
+    private void filterBy(List<LocationEntity> list) {
+        if (GlobalSingleton.getInstance().isFilterToday() && !GlobalSingleton.getInstance().isFilterAll()) {
+            Calendar clCurr = Calendar.getInstance();
+            int yearCurr = clCurr.get(Calendar.YEAR);
+            int monthCurr = clCurr.get(Calendar.MONTH);
+            int dayCurr = clCurr.get(Calendar.DAY_OF_MONTH);
+            Date dateEntity;
+            for (LocationEntity entity : list) {
+                dateEntity = Utils.getTimeDate(entity.getDate());
+                if (dateEntity != null && (dateEntity.getYear() != yearCurr ||
+                        dateEntity.getMonth() != monthCurr || dateEntity.getDay() != dayCurr)) {
+                    list.remove(entity);
+                }
+            }
+        }
+    }
+
+    private void setUI(List<LocationEntity> list) {
         locationList.clear();
-        locationList.addAll(locationListTemp);
+        locationList.addAll(list);
         if (isShowMap) {
-            googleMap.addPolygon(polygonOptions);
+            if(locationList.size() > 0) {
+                googleMap.addPolygon(polygonOptions);
+            }
             addMarker();
-            //-- Goto center bound
-            changeCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 10));
+
+            if(locationList.size() > 0) {
+                //-- Goto center bound
+                changeCamera(CameraUpdateFactory.newLatLngBounds(boundsBuilder.build(), 10));
+            }
         } else {
             prepareDetailAdapter();
         }
@@ -203,7 +293,9 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
                 if (list != null && list.size() > 0) {
                     locationListTemp.clear();
                     locationListTemp.addAll(list);
-                    prepareMapData();
+                    filterBy(locationListTemp);
+                    sort(locationListTemp);
+                    prepareMapData(locationListTemp);
                     return true;
                 }
                 return false;
@@ -212,7 +304,7 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             @Override
             protected void onPostExecute(Boolean haveData) {
                 if (haveData) {
-                    setUI();
+                    setUI(locationListTemp);
                     tvDataNotFound.setVisibility(View.GONE);
                     if (!swipeRefreshLayout.isRefreshing())
                         loading.setVisibility(View.GONE);
@@ -354,4 +446,5 @@ public class LocationFragment extends BaseFragment implements OnMapReadyCallback
             //here you have access to the marker itself
         }
     }
+
 }

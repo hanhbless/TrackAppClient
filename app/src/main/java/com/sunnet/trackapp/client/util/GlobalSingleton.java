@@ -58,4 +58,33 @@ public class GlobalSingleton {
     public void setVoiceList(List<CallVoiceEntity> voiceList) {
         this.voiceList = voiceList;
     }
+
+    /*******************************************************************************/
+    private boolean isFilterToday = true;
+    private boolean isFilterAll = true;
+    private boolean isFilterAscending = true;
+
+    public boolean isFilterToday() {
+        return isFilterToday;
+    }
+
+    public void setFilterToday(boolean filterToday) {
+        isFilterToday = filterToday;
+    }
+
+    public boolean isFilterAll() {
+        return isFilterAll;
+    }
+
+    public void setFilterAll(boolean filterAll) {
+        isFilterAll = filterAll;
+    }
+
+    public boolean isFilterAscending() {
+        return isFilterAscending;
+    }
+
+    public void setFilterAscending(boolean filterAscending) {
+        isFilterAscending = filterAscending;
+    }
 }
