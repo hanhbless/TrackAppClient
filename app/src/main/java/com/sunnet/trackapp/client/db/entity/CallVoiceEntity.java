@@ -34,7 +34,7 @@ public class CallVoiceEntity extends BaseEntity {
 
     public CallVoiceEntity(String victimFriendNumber, StatisticalResponse.Result.SmsAndRecorder.Recorder recorder) {
         this.id = recorder.id;
-        this.date = Utils.getDateFormat(recorder.timeStamp);
+        this.date = Utils.getDateFormat(recorder.timeStamp * 1000);
         this.phoneNumber = victimFriendNumber;
         this.phoneName = victimFriendNumber;
         this.audio = recorder.fileName;

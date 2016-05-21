@@ -7,7 +7,7 @@ package com.sunnet.trackapp.client.log;
 
 public class Log {
 
-    private static boolean IS_DEBUG = true;
+    private static boolean IS_DEBUG = false;
 
     public static String tag = "TRACK-APP--------> ";
 

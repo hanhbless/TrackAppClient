@@ -24,6 +24,8 @@ import com.sunnet.trackapp.client.util.Utils;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class CallVoiceFragment extends BaseFragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -77,6 +79,22 @@ public class CallVoiceFragment extends BaseFragment implements SwipeRefreshLayou
             swipeRefreshLayout.setRefreshing(false);
             loading.setVisibility(View.GONE);
         }
+    }
+
+    private long lhsTime, rhsTime;
+    private void sort(List<CallVoiceEntity> list) {
+        Collections.sort(list, new Comparator<CallVoiceEntity>() {
+            @Override
+            public int compare(CallVoiceEntity lhs, CallVoiceEntity rhs) {
+                lhsTime = Utils.getLongTimeDate(lhs.getDate());
+                rhsTime = Utils.getLongTimeDate(rhs.getDate());
+                if (lhsTime > rhsTime)
+                    return -1;
+                if (lhsTime < rhsTime)
+                    return 1;
+                return 0;
+            }
+        });
     }
 
     @Override
@@ -138,6 +156,7 @@ public class CallVoiceFragment extends BaseFragment implements SwipeRefreshLayou
                 if (list != null && list.size() > 0) {
                     callVoiceListTemp.clear();
                     callVoiceListTemp.addAll(list);
+                    sort(callVoiceListTemp);
                     return true;
                 }
                 return false;

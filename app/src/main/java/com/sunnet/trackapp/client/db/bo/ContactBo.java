@@ -5,6 +5,7 @@ import com.sunnet.trackapp.client.db.dao.IContactDao;
 import com.sunnet.trackapp.client.db.entity.ContactEntity;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,7 +22,26 @@ public class ContactBo implements IContactDao {
 
     @Override
     public void createAll(List<ContactEntity> list) throws SQLException {
-        getDao().createAll(list);
+        if (list.size() > 400) {
+            int size = list.size();
+            int countList = size / 400 + 1;
+
+            int next = 0;
+            for (int i = 0; i < countList; i++) {
+                List<ContactEntity> newList = new ArrayList<>();
+                for (int j = next; j < size; j++) {
+                    newList.add(list.get(j));
+                    if (j >= (400 * (i + 1))) {
+                        next = j;
+                        break;
+                    }
+                }
+                if (newList.size() > 0) {
+                    getDao().createAll(newList);
+                }
+            }
+        } else
+            getDao().createAll(list);
     }
 
     @Override

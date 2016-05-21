@@ -1,6 +1,5 @@
 package com.sunnet.trackapp.client.ui.adapter;
 
-import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -23,7 +22,7 @@ import java.util.List;
 
 public class VoiceAdapter extends RecyclerView.Adapter<VoiceAdapter.VoiceHolder> {
     private static IOnCLick iOnCLick;
-    private List<CallVoiceEntity> voiceList;
+    private static List<CallVoiceEntity> voiceList;
     private static ThinDownloadManager downloadManager;
     private static final int DOWNLOAD_THREAD_POOL_SIZE = 2;
     private static String itemIdPlayAudioCurr;
@@ -55,7 +54,6 @@ public class VoiceAdapter extends RecyclerView.Adapter<VoiceAdapter.VoiceHolder>
         ProgressWheel progressWheel;
         ImageView iconPlay;
         TextView tvNameOrPhone, tvDuration, tvTime;
-        View.OnClickListener onClickListener;
 
         public VoiceHolder(View itemView) {
             super(itemView);
@@ -84,47 +82,45 @@ public class VoiceAdapter extends RecyclerView.Adapter<VoiceAdapter.VoiceHolder>
             }
 
             progressWheel.setVisibility(View.GONE);
-            if (onClickListener == null) {
-                onClickListener = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        String pathAudio = Utils.getPathVoice(fileName);
-                        if (Utils.isExistFile(pathAudio)) {
-                            itemIdPlayAudioCurr = fileName;
-                            iOnCLick.onClick(entity);
-                        } else {
-                            //-- Download audio from server
-                            progressWheel.setVisibility(View.VISIBLE);
-                            iconPlay.setVisibility(View.INVISIBLE);
-                            DownloadRequest downloadRequest =
-                                    new DownloadRequest(Uri.parse(ConfigApi.URL_VOICE + entity.getAudio()))
-                                    .setDestinationURI(Uri.parse(pathAudio))
-                                    .setDownloadListener(new DownloadStatusListener() {
-                                        @Override
-                                        public void onDownloadComplete(int id) {
-                                            progressWheel.setVisibility(View.GONE);
-                                            iconPlay.setImageResource(R.mipmap.btn_play);
-                                            iconPlay.setVisibility(View.VISIBLE);
-                                        }
+            View.OnClickListener onClickListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String pathAudio = Utils.getPathVoice(fileName);
+                    if (Utils.isExistFile(pathAudio)) {
+                        itemIdPlayAudioCurr = fileName;
+                        iOnCLick.onClick(voiceList.get(getPosition()));
+                    } else {
+                        //-- Download audio from server
+                        progressWheel.setVisibility(View.VISIBLE);
+                        iconPlay.setVisibility(View.INVISIBLE);
+                        DownloadRequest downloadRequest =
+                                new DownloadRequest(Uri.parse(ConfigApi.URL_VOICE + entity.getAudio()))
+                                        .setDestinationURI(Uri.parse(pathAudio))
+                                        .setDownloadListener(new DownloadStatusListener() {
+                                            @Override
+                                            public void onDownloadComplete(int id) {
+                                                progressWheel.setVisibility(View.GONE);
+                                                iconPlay.setImageResource(R.mipmap.btn_play);
+                                                iconPlay.setVisibility(View.VISIBLE);
+                                            }
 
-                                        @Override
-                                        public void onDownloadFailed(int id, int errorCode, String errorMessage) {
-                                            Log.e(VoiceAdapter.class.getName() + " download audio error: " + errorMessage);
-                                            progressWheel.setVisibility(View.GONE);
-                                            iconPlay.setVisibility(View.VISIBLE);
-                                        }
+                                            @Override
+                                            public void onDownloadFailed(int id, int errorCode, String errorMessage) {
+                                                Log.e(VoiceAdapter.class.getName() + " download audio error: " + errorMessage);
+                                                progressWheel.setVisibility(View.GONE);
+                                                iconPlay.setVisibility(View.VISIBLE);
+                                            }
 
-                                        @Override
-                                        public void onProgress(int id, long totalBytes, int progress) {
-                                            progressWheel.setProgress(progress);
-                                        }
-                                    });
-                            downloadManager.add(downloadRequest);
-                        }
+                                            @Override
+                                            public void onProgress(int id, long totalBytes, int progress) {
+                                                progressWheel.setProgress(progress);
+                                            }
+                                        });
+                        downloadManager.add(downloadRequest);
                     }
-                };
-                iconPlay.setOnClickListener(onClickListener);
-            }
+                }
+            };
+            iconPlay.setOnClickListener(onClickListener);
         }
     }
 }
