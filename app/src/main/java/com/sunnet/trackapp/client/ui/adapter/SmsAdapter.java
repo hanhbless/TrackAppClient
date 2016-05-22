@@ -50,9 +50,9 @@ public class SmsAdapter extends RecyclerView.Adapter<SmsAdapter.SmsHolder> {
         }
 
         public void setUi(final SMSEntity entity) {
-            tvNameOrPhone.setText(entity.getSender());
+            tvNameOrPhone.setText(entity.showSender());
             tvMessage.setText(entity.getBody());
-            tvTime.setText(entity.getDate());
+            tvTime.setText(entity.getDate().split(" ")[1]);
             if (onClickListener == null) {
                 onClickListener = new View.OnClickListener() {
                     @Override

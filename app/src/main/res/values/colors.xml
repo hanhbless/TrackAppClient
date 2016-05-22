@@ -8,4 +8,8 @@
     <color name="white">@android:color/white</color>
     <color name="red">@android:color/holo_red_dark</color>
     <color name="colorDim">#33000000</color>
+
+    <color name="colorBgSmsSender">#69fad1</color>
+    <color name="colorBgSmsReceiver">#fff059</color>
+    <color name="colorSmsText">#000000</color>
 </resources>

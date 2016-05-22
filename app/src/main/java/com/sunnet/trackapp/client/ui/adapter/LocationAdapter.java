@@ -50,7 +50,7 @@ public class LocationAdapter extends RecyclerView.Adapter<LocationAdapter.Locati
         }
 
         public void setUi(final LocationEntity entity) {
-            tvTime.setText(entity.getDate());
+            tvTime.setText(entity.getDate().substring(0, entity.getDate().length() - 3));
             tvHeader.setText(entity.getPlace());
             tvAddress.setText(entity.getAddress());
             /*if (onClickListener == null) {

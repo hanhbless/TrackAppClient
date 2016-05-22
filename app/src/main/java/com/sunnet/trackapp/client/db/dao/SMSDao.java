@@ -48,7 +48,8 @@ public class SMSDao extends BaseDaoImpl<SMSEntity, String> implements ISMSDao {
         builder.append("'" + SMSEntity.DATE_COL + "', ");
         builder.append("'" + SMSEntity.SENDER_COL + "', ");
         builder.append("'" + SMSEntity.RECEIVER_COL + "', ");
-        builder.append("'" + SMSEntity.BODY_COL + "'");
+        builder.append("'" + SMSEntity.BODY_COL + "', ");
+        builder.append("'" + SMSEntity.TYPE_COL + "'");
         builder.append(")");
         builder.append(" VALUES ");
 
@@ -60,7 +61,8 @@ public class SMSDao extends BaseDaoImpl<SMSEntity, String> implements ISMSDao {
             builder.append("'" + item.getDate() + "', ");
             builder.append("'" + item.getSender() + "', ");
             builder.append("'" + item.getReceiver() + "', ");
-            builder.append("'" + item.getBody() + "'");
+            builder.append("'" + item.getBody() + "', ");
+            builder.append(item.getType());
             builder.append(")");
 
             if (i < count - 1)

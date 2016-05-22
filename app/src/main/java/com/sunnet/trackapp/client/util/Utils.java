@@ -348,7 +348,7 @@ public class Utils {
     /**
      * Format date string
      */
-    private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, yyyy-MMM-dd HH:mm");
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, yyyy-MMM-dd HH:mm:ss");
 
     public static String getDateFormat(long timeInMillisecond) {
         try {

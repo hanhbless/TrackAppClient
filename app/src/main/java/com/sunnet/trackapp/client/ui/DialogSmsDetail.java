@@ -3,23 +3,27 @@ package com.sunnet.trackapp.client.ui;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Point;
-import android.os.Build;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 
 import com.sunnet.trackapp.client.R;
 import com.sunnet.trackapp.client.db.entity.SMSEntity;
+import com.sunnet.trackapp.client.ui.adapter.SmsDetailAdapter;
+import com.sunnet.trackapp.client.util.Utils;
 
 public class DialogSmsDetail extends Dialog {
     Activity activity;
     SMSEntity entity;
-    TextView tvNameOrPhone, tvMessage, tvTime;
+    RecyclerView recyclerView;
     Button btnClose;
+    TextView tvPhone, tvName;
     IDialog mListener;
+
+    SmsDetailAdapter adapter;
 
     public DialogSmsDetail(Context context, SMSEntity entity, IDialog mListener) {
         super(context, R.style.FullHeightDialog);
@@ -37,14 +41,26 @@ public class DialogSmsDetail extends Dialog {
     }
 
     private void init() {
-        tvNameOrPhone = (TextView) findViewById(R.id.tv1);
-        tvMessage = (TextView) findViewById(R.id.tv2);
-        tvTime = (TextView) findViewById(R.id.tv3);
-        btnClose = (Button) findViewById(R.id.btn_close);
+        tvName = (TextView) findViewById(R.id.tv1);
+        tvPhone = (TextView) findViewById(R.id.tv2);
 
-        tvNameOrPhone.setText(entity.getSender());
-        tvMessage.setText(entity.getBody());
-        tvTime.setText(entity.getDate());
+        tvName.setVisibility(View.GONE);
+        if (Utils.isEmptyString(entity.getNameSender())) {
+            tvPhone.setText(entity.getSender());
+        } else {
+            tvName.setText(entity.getNameSender());
+            tvPhone.setText(entity.getSender());
+            tvName.setVisibility(View.VISIBLE);
+        }
+
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(activity));
+        recyclerView.setHasFixedSize(true);
+
+        adapter = new SmsDetailAdapter(entity.getSmsList());
+        recyclerView.setAdapter(adapter);
+
+        btnClose = (Button) findViewById(R.id.btn_close);
         btnClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

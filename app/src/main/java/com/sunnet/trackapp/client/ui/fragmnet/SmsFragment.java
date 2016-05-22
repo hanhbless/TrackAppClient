@@ -13,15 +13,21 @@ import com.sunnet.trackapp.client.R;
 import com.sunnet.trackapp.client.asynctask.ConcurrentAsyncTask;
 import com.sunnet.trackapp.client.db.DatabaseHelper;
 import com.sunnet.trackapp.client.db.entity.BaseEntity;
+import com.sunnet.trackapp.client.db.entity.ContactEntity;
 import com.sunnet.trackapp.client.db.entity.SMSEntity;
 import com.sunnet.trackapp.client.ui.DialogSmsDetail;
 import com.sunnet.trackapp.client.ui.activity.MainActivity;
 import com.sunnet.trackapp.client.ui.adapter.IOnCLick;
 import com.sunnet.trackapp.client.ui.adapter.SmsAdapter;
 import com.sunnet.trackapp.client.util.GlobalSingleton;
+import com.sunnet.trackapp.client.util.Utils;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * All software created will be owned by
@@ -124,6 +130,8 @@ public class SmsFragment extends BaseFragment implements SwipeRefreshLayout.OnRe
     /**
      * Preparing data
      */
+    private long rhsTime, lhsTime;
+
     private void initData() {
         new ConcurrentAsyncTask<Void, Void, Boolean>() {
             @Override
@@ -135,6 +143,11 @@ public class SmsFragment extends BaseFragment implements SwipeRefreshLayout.OnRe
 
             @Override
             protected Boolean doInBackground(Void... params) {
+                //-- Get all contact to get name for phone number
+                List<ContactEntity> contactList = GlobalSingleton.getInstance().getContactList();
+                if (contactList == null) {
+                    contactList = DatabaseHelper.getAllContact();
+                }
                 List<SMSEntity> list = GlobalSingleton.getInstance().getSmsList();
                 if (list == null || list.size() == 0) {
                     list = DatabaseHelper.getAllSms();
@@ -145,8 +158,62 @@ public class SmsFragment extends BaseFragment implements SwipeRefreshLayout.OnRe
                     }
                 }
                 if (list != null && list.size() > 0) {
+                    //-- Sort by ascending of all item by time
+                    try {
+                        Collections.sort(list, new Comparator<SMSEntity>() {
+                            @Override
+                            public int compare(SMSEntity lhs, SMSEntity rhs) {
+                                lhsTime = Utils.getLongTimeDate(lhs.getDate());
+                                rhsTime = Utils.getLongTimeDate(rhs.getDate());
+                                if (rhsTime < lhsTime)
+                                    return 1;
+                                if (rhsTime > lhsTime)
+                                    return -1;
+                                return 0;
+                            }
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    //-- Set name for phone number
+                    if (contactList != null && contactList.size() > 0) {
+                        ContactEntity contactEntity = new ContactEntity();
+                        int index;
+                        for (SMSEntity entity : list) {
+                            contactEntity.setPhone(entity.getSender() + ";");
+                            index = contactList.indexOf(contactEntity);
+                            if (index >= 0) {
+                                entity.setNameSender(contactList.get(index).getName());
+                            }
+                        }
+                    }
+
+                    HashMap<String, List<SMSEntity>> map = new HashMap<>();
+                    String key;
+                    List<SMSEntity> groupSms;
+                    for (SMSEntity sms : list) {
+                        key = sms.getReceiver() + sms.getSender();
+                        groupSms = map.get(key);
+
+                        if (groupSms == null) {
+                            groupSms = new ArrayList<>();
+                            groupSms.add(sms);
+                            map.put(key, groupSms);
+                        } else {
+                            groupSms.add(sms);
+                        }
+                    }
                     smsListTemp.clear();
-                    smsListTemp.addAll(list);
+                    //-- Get entity new latest into a group by (sender + receiver)
+                    Set<String> keys = map.keySet();
+                    SMSEntity smsLatest;
+                    for (String key2 : keys) {
+                        groupSms = map.get(key2);
+                        smsLatest = groupSms.get(groupSms.size() - 1);
+                        smsLatest.setSmsList(groupSms);
+                        smsListTemp.add(smsLatest);
+                    }
                     return true;
                 }
                 return false;
@@ -176,4 +243,5 @@ public class SmsFragment extends BaseFragment implements SwipeRefreshLayout.OnRe
             }
         }.executeConcurrently();
     }
+
 }

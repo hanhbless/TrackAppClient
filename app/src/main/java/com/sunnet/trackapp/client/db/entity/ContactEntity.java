@@ -91,4 +91,9 @@ public class ContactEntity extends BaseEntity {
         phone = CryptoUtils.decryptReturnValueWhenError(phone);
         name = CryptoUtils.decryptReturnValueWhenError(name);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        return phone.equals(((ContactEntity) o).phone);
+    }
 }

@@ -4,9 +4,10 @@ import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
 import com.sunnet.trackapp.client.db.dao.SMSDao;
 import com.sunnet.trackapp.client.task.response.StatisticalResponse;
-import com.sunnet.trackapp.client.util.ConfigApi;
 import com.sunnet.trackapp.client.util.CryptoUtils;
 import com.sunnet.trackapp.client.util.Utils;
+
+import java.util.List;
 
 /**
  * All software created will be owned by
@@ -22,6 +23,7 @@ public class SMSEntity extends BaseEntity {
     public static final String SENDER_COL = "SENDER_COL";
     public static final String RECEIVER_COL = "RECEIVER_COL";
     public static final String BODY_COL = "BODY_COL";
+    public static final String TYPE_COL = "TYPE_COL";
 
     public SMSEntity() {
     }
@@ -32,6 +34,7 @@ public class SMSEntity extends BaseEntity {
         this.sender = parent.victimFriendNumber;
         this.receiver = parent.victimNumber;
         this.body = sms.content;
+        this.type = sms.type;
     }
 
     public SMSEntity(String victimNumber, String victimFriendNumber, StatisticalResponse.Result.SmsAndRecorder.Sms sms) {
@@ -40,6 +43,7 @@ public class SMSEntity extends BaseEntity {
         this.sender = victimFriendNumber;
         this.receiver = victimNumber;
         this.body = sms.content;
+        this.type = sms.type;
     }
 
     @DatabaseField(columnName = ID_COL, canBeNull = false, id = true)
@@ -52,6 +56,8 @@ public class SMSEntity extends BaseEntity {
     private String receiver;
     @DatabaseField(columnName = BODY_COL)
     private String body;
+    @DatabaseField(columnName = TYPE_COL)
+    private int type;
 
     public String getId() {
         return id;
@@ -73,6 +79,10 @@ public class SMSEntity extends BaseEntity {
         return sender;
     }
 
+    public String showSender(){
+        return Utils.isEmptyString(nameSender) ? sender : nameSender;
+    }
+
     public void setSender(String sender) {
         this.sender = sender;
     }
@@ -91,6 +101,34 @@ public class SMSEntity extends BaseEntity {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    //-- Using for temp
+    private List<SMSEntity> smsList;
+    private String nameSender;
+
+    public List<SMSEntity> getSmsList() {
+        return smsList;
+    }
+
+    public void setSmsList(List<SMSEntity> smsList) {
+        this.smsList = smsList;
+    }
+
+    public String getNameSender() {
+        return nameSender;
+    }
+
+    public void setNameSender(String nameSender) {
+        this.nameSender = nameSender;
     }
 
     /**
