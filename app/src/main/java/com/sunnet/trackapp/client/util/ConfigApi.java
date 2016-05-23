@@ -10,7 +10,7 @@ public class ConfigApi {
     public static final String API_KEY = "wnTdm7Mx7VdZzgV6VU9az6gF";
     public static final int TIME_OUT = 90;
     public static final String HEADER_API = "";
-    public static final String URL_HOST = "http://128.199.234.7:3000/";
+    public static final String URL_HOST = "http://128.199.234.7:3003/";
     public static final String URL_VOICE = "http://128.199.234.7/upload/uploads/";
 
     public static final String STATISTICAL = "w33";
